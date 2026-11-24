@@ -47,14 +47,14 @@
   .hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(4,4,4,.75) 0%,rgba(4,4,4,.45) 30%,rgba(4,4,4,.65) 60%,rgba(4,4,4,1) 100%)}
   .hero-inner{position:relative;z-index:2;color:#fff;padding:0 24px clamp(28px,6vh,72px);max-width:960px}
   .eyebrow{font-size:13px;letter-spacing:.42em;text-transform:uppercase;opacity:.85;margin-bottom:18px}
-  .hero h1{font-weight:700;font-size:clamp(40px,min(10vw,14vh),132px);line-height:.88;letter-spacing:.03em;margin-right:-.03em;text-transform:uppercase}
+  .hero h1{font-weight:700;font-size:clamp(26px,min(9vw,12vh),112px);line-height:.95;letter-spacing:.03em;margin-right:-.03em;text-transform:uppercase;white-space:nowrap}
   .hero h2.sub{font-family:var(--serif);font-weight:400;font-size:clamp(24px,3.2vw,40px);line-height:1.1;margin-top:18px;color:var(--ink-2)}
   .hero h2.sub em{color:var(--gold);font-style:italic}
   .hero p.data{margin-top:14px;color:var(--ink-2);font-size:clamp(15px,1.6vw,18px)}
   .stats{display:flex;justify-content:center;gap:clamp(20px,5vw,56px);margin-top:clamp(18px,3.5vh,32px);flex-wrap:wrap}
   .stat b{display:block;font-weight:600;font-size:clamp(28px,3.4vw,42px);line-height:1;font-variant-numeric:tabular-nums}
   .stat span{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
-  .hero.compacto h1{font-size:clamp(30px,min(6.4vw,9vh),80px)}
+  .hero.compacto h1{font-size:clamp(24px,min(6vw,9vh),72px)}
   .hero.compacto .hero-inner{padding-bottom:0}
   .hero.compacto ~ #estado .estado{margin-top:28px}
 
@@ -88,6 +88,17 @@
   .thumb img{display:block;width:100%;height:100%;object-fit:cover;transition:transform .4s}
   .card:hover .thumb img{transform:scale(1.04)}
   .sem-capa{position:absolute;inset:0;display:grid;place-items:center;color:var(--muted);font-size:13px}
+  /* "Em breve": capa provisória enquanto os vídeos não são publicados */
+  .ph{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;
+      background:radial-gradient(120% 80% at 50% 0%,#5a2a26 0%,var(--accent-dark) 45%,#140b0b 100%);overflow:hidden}
+  .ph::before{content:"";position:absolute;inset:0;background:url(logo-mark.png) center 38%/38% no-repeat;opacity:.07}
+  .ph em{position:relative;font-family:var(--serif);font-style:italic;font-size:clamp(22px,2.2vw,30px);color:var(--gold);line-height:1}
+  .ph small{position:relative;font-size:10px;letter-spacing:.28em;text-transform:uppercase;color:rgba(248,244,242,.55)}
+  .mtile.ph{position:relative}
+  .mtile.ph em{font-size:clamp(16px,1.6vw,22px)}
+  .mtile.ph small{display:none}
+  .card.breve{cursor:default}
+  .card.breve:hover{transform:none;border-color:var(--line)}
   .badge{position:absolute;top:8px;left:8px;font-size:11px;letter-spacing:.06em;background:rgba(0,0,0,.6);backdrop-filter:blur(6px);padding:4px 8px;border-radius:999px;color:#fff}
   .play{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none}
   .play i{width:42px;height:42px;border-radius:50%;background:rgba(0,0,0,.45);backdrop-filter:blur(4px);display:grid;place-items:center;opacity:.9}
@@ -187,12 +198,11 @@
     <h1 id="titulo">Seu baile</h1>
     <h2 class="sub">Reviva a <em>sua dança</em></h2>
     <p class="data" id="data"></p>
-    <div class="stats" id="stats"></div>
   </div>
 </section>
 
 <ol class="passos" id="passos">
-  <li><b>1</b>Ache seu casal</li>
+  <li><b>1</b>Ache o seu vídeo</li>
   <li><b>2</b>Assista à prévia</li>
   <li><b>3</b>Pix ou cartão</li>
   <li><b>4</b>Receba por e-mail</li>
@@ -281,36 +291,48 @@ function dataLonga(d) {
   return new Date(a, m - 1, dia).toLocaleDateString("pt-BR", { day: "numeric", month: "long", year: "numeric" });
 }
 
+const PH = `<em>Em breve</em><small>ArestAgência</small>`;
+
 function montarMosaico() {
   const m = $("#mosaic");
   m.innerHTML = "";
-  if (!videos.length) return;
   const cols = innerWidth < 700 ? 4 : 8, porCol = 6;
   for (let c = 0; c < cols; c++) {
     const col = document.createElement("div");
     col.className = "mcol";
     for (let i = 0; i < porCol; i++) {
-      const v = videos[(c * porCol + i * 3 + c) % videos.length];
       const t = document.createElement("div");
-      t.className = "mtile";
-      const im = new Image();
-      im.onload = () => (t.style.backgroundImage = `url("${im.src}")`);
-      im.src = capaUrl(v.id, 300);
+      if (videos.length) {
+        const v = videos[(c * porCol + i * 3 + c) % videos.length];
+        t.className = "mtile";
+        const im = new Image();
+        im.onload = () => (t.style.backgroundImage = `url("${im.src}")`);
+        im.src = capaUrl(v.id, 300);
+      } else {
+        t.className = "mtile ph";
+        t.innerHTML = PH;
+      }
       col.appendChild(t);
     }
     m.appendChild(col);
   }
 }
 
+// Grade provisória enquanto os vídeos não são publicados
+function desenharEmBreve(n = 20) {
+  $("#bar").hidden = true;
+  const cards = Array.from({ length: n }, (_, i) => {
+    const nn = String(i + 1).padStart(2, "0");
+    return `<div class="card breve" aria-hidden="true"><div class="thumb"><div class="ph">${PH}</div><span class="badge">Nº ${nn}</span></div>
+      <div class="meta"><b>Vídeo nº ${nn}</b><span><i class="dot"></i>Disponível após o baile</span></div></div>`;
+  }).join("");
+  $("#lista").innerHTML = `<section class="month"><h2>Os vídeos chegam aqui <span>em breve</span></h2><div class="grid">${cards}</div></section>`;
+}
+
 function cabecalho() {
   document.title = `${evento.nome} | Vídeos ArestAgência`;
   $("#titulo").textContent = evento.nome;
   $("#data").textContent = dataLonga(evento.data);
-  const n = videos.length;
-  $("#stats").innerHTML = [
-    n ? [n, n === 1 ? "vídeo" : "vídeos"] : null,
-    [reais(evento.preco_centavos), "por vídeo"],
-  ].filter(Boolean).map(([b, s]) => `<div class="stat"><b>${b}</b><span>${s}</span></div>`).join("");
 }
 
 // ---------- Galeria ----------
@@ -329,8 +351,7 @@ async function carregarGaleria() {
     cabecalho();
     montarMosaico();
     if (!videos.length) {
-      lista.innerHTML = `<div class="empty">Os vídeos estão sendo editados e aparecem aqui em breve.</div>`;
-      $("#bar").hidden = true;
+      desenharEmBreve(20);
       return;
     }
     desenhar();
