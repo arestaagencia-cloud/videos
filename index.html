@@ -215,9 +215,11 @@ function mostrarEstado(html) {
   el.classList.remove("esconder");
 }
 
-function imgCapa(id, w) {
-  if (!id) return `<div class="sem-capa">Capa em breve</div>`;
-  return `<img src="${capaUrl(id, w)}" alt="" loading="lazy" onerror="if(!this.dataset.f){this.dataset.f=1;this.src='${capaFallback(id, w)}'}">`;
+// Capa servida pelo servidor: usa a imagem escolhida em Capas/ ou, se não houver,
+// a miniatura automática do vídeo no Drive (sem expor o arquivo final).
+const capaServidor = (videoId, w = 600) => api(`/functions/v1/capa?v=${encodeURIComponent(videoId)}&w=${w}`);
+function imgCapa(videoId, w) {
+  return `<img src="${capaServidor(videoId, w)}" alt="" loading="lazy" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'sem-capa',textContent:'Capa em breve'}))">`;
 }
 
 // ---------- Galeria ----------
@@ -246,7 +248,7 @@ async function carregarGaleria() {
       b.className = "card";
       b.type = "button";
       b.setAttribute("aria-label", `Ver prévia do vídeo ${v.codigo}`);
-      b.innerHTML = `${imgCapa(v.capa_drive_id, 600)}<span class="selo">Nº ${esc(v.codigo)}</span><span class="play" aria-hidden="true"></span>`;
+      b.innerHTML = `${imgCapa(v.id, 600)}<span class="selo">Nº ${esc(v.codigo)}</span><span class="play" aria-hidden="true"></span>`;
       b.addEventListener("click", () => abrirModal(v));
       grade.appendChild(b);
     }
