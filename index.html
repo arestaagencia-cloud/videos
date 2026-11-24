@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Vídeos do Baile | ArestAgência</title>
+<meta name="description" content="Encontre e compre o vídeo da sua dança no baile. Produção ArestAgência.">
+<meta name="theme-color" content="#040404">
+<style>
+  :root{
+    --papel:#F8F4F2; --tinta:#040404; --grafite:#222222; --vinho:#882725; --vinho-esc:#3c1e1e;
+    --ouro:#F6AD03; --branco:#FFFFFF; --cinza:#6f6866; --linha:#e6dfdb;
+    --raio:14px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    font-family:"Nimbus Sans","Helvetica Neue",Helvetica,Arial,sans-serif;
+    background:var(--papel); color:var(--tinta); line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit}
+  button{font:inherit;cursor:pointer}
+  .topo{
+    background:var(--tinta); color:var(--papel);
+    padding:28px 20px 32px;
+  }
+  .topo-inner,.conteudo,.rodape-inner{max-width:1080px;margin:0 auto}
+  .marca{font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--ouro);font-weight:700;margin:0 0 18px}
+  .topo h1{font-size:clamp(28px,6vw,44px);line-height:1.08;margin:0 0 10px;font-weight:700;letter-spacing:-.01em}
+  .topo p{margin:0;color:#cfc7c3;max-width:560px}
+  .passos{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px;padding:0;list-style:none}
+  .passos li{font-size:13px;border:1px solid #3a3a3a;border-radius:999px;padding:6px 12px;color:#e9e3df}
+  .passos b{color:var(--ouro);margin-right:4px}
+
+  .conteudo{padding:28px 16px 40px}
+  .barra{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin:0 4px 16px}
+  .barra h2{font-size:15px;margin:0;font-weight:700}
+  .barra span{font-size:13px;color:var(--cinza)}
+
+  .grade{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+  @media(min-width:640px){.grade{grid-template-columns:repeat(3,1fr);gap:16px}}
+  @media(min-width:960px){.grade{grid-template-columns:repeat(4,1fr)}}
+
+  .card{
+    position:relative;border:0;padding:0;background:var(--grafite);border-radius:var(--raio);
+    overflow:hidden;aspect-ratio:4/5;display:block;width:100%;text-align:left;
+    box-shadow:0 1px 0 rgba(0,0,0,.04);transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .card:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(4,4,4,.15)}
+  .card:focus-visible{outline:3px solid var(--ouro);outline-offset:2px}
+  .card img{width:100%;height:100%;object-fit:cover;display:block;background:#2b2b2b}
+  .card .selo{
+    position:absolute;left:10px;bottom:10px;background:rgba(4,4,4,.78);color:var(--papel);
+    font-size:12px;font-weight:700;letter-spacing:.06em;padding:5px 10px;border-radius:999px;
+    backdrop-filter:blur(4px)
+  }
+  .card .play{
+    position:absolute;right:10px;bottom:10px;width:34px;height:34px;border-radius:50%;
+    background:var(--ouro);display:grid;place-items:center
+  }
+  .card .play::before{content:"";border-left:11px solid var(--tinta);border-top:7px solid transparent;border-bottom:7px solid transparent;margin-left:3px}
+  .sem-capa{width:100%;height:100%;display:grid;place-items:center;color:#9a928e;font-size:13px}
+
+  .estado{
+    max-width:560px;margin:24px auto;background:var(--branco);border:1px solid var(--linha);
+    border-radius:20px;padding:32px 24px;text-align:center
+  }
+  .estado h2{margin:0 0 8px;font-size:24px;line-height:1.2}
+  .estado p{margin:0 0 16px;color:var(--grafite)}
+  .estado .miniatura{width:140px;aspect-ratio:4/5;object-fit:cover;border-radius:12px;margin:0 auto 18px;display:block;background:#ddd}
+  .spinner{width:36px;height:36px;border-radius:50%;border:3px solid var(--linha);border-top-color:var(--vinho);margin:4px auto 18px;animation:gira 1s linear infinite}
+  @keyframes gira{to{transform:rotate(360deg)}}
+
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:999px;
+    padding:15px 26px;font-weight:700;font-size:16px;text-decoration:none;transition:filter .15s ease
+  }
+  .btn:hover{filter:brightness(.95)}
+  .btn-ouro{background:var(--ouro);color:var(--tinta)}
+  .btn-vinho{background:var(--vinho);color:var(--branco)}
+  .btn-linha{background:transparent;color:var(--tinta);border:1px solid var(--linha)}
+  .btn[disabled]{opacity:.6;cursor:wait}
+  .btn-bloco{width:100%}
+
+  /* Modal */
+  .modal{position:fixed;inset:0;background:rgba(4,4,4,.82);display:none;align-items:flex-end;justify-content:center;z-index:50}
+  .modal.aberto{display:flex}
+  @media(min-width:720px){.modal{align-items:center;padding:24px}}
+  .painel{
+    background:var(--papel);width:100%;max-width:880px;max-height:100dvh;overflow:auto;
+    border-radius:20px 20px 0 0;display:grid;grid-template-columns:1fr
+  }
+  @media(min-width:720px){.painel{grid-template-columns:1.1fr 1fr;border-radius:20px;max-height:92vh}}
+  .video-box{background:var(--tinta);position:relative;aspect-ratio:9/16;max-height:62vh;width:100%}
+  @media(min-width:720px){.video-box{max-height:none;height:100%;min-height:520px;aspect-ratio:auto}}
+  .video-box iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+  .lado{padding:22px 20px 26px;position:relative}
+  .fechar{position:absolute;top:12px;right:12px;width:38px;height:38px;border-radius:50%;border:1px solid var(--linha);background:var(--branco);font-size:20px;line-height:1}
+  .lado .codigo{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--vinho);font-weight:700;margin:0 0 6px}
+  .lado h3{font-size:22px;margin:0 0 6px;line-height:1.2;padding-right:44px}
+  .lado .preco{font-size:30px;font-weight:700;margin:10px 0 4px}
+  .lado .preco small{font-size:14px;font-weight:400;color:var(--cinza)}
+  .inclui{list-style:none;padding:0;margin:12px 0 18px;font-size:14px;color:var(--grafite)}
+  .inclui li{padding:4px 0 4px 22px;position:relative}
+  .inclui li::before{content:"";position:absolute;left:2px;top:11px;width:10px;height:6px;border-left:2px solid var(--vinho);border-bottom:2px solid var(--vinho);transform:rotate(-45deg)}
+  form label{display:block;font-size:13px;font-weight:700;margin:12px 0 6px}
+  form input{
+    width:100%;padding:13px 14px;border:1px solid #d6cdc8;border-radius:10px;font:inherit;font-size:16px;background:var(--branco);color:var(--tinta)
+  }
+  form input:focus{outline:2px solid var(--ouro);border-color:transparent}
+  .ajuda{font-size:12px;color:var(--cinza);margin:6px 0 0}
+  .erro{color:var(--vinho);font-size:14px;margin:12px 0 0;min-height:1em}
+  .seguro{font-size:12px;color:var(--cinza);text-align:center;margin:12px 0 0}
+
+  .rodape{border-top:1px solid var(--linha);padding:24px 16px 40px;font-size:13px;color:var(--cinza)}
+  .rodape p{margin:0 0 6px}
+  .vazio{grid-column:1/-1;text-align:center;padding:48px 16px;color:var(--cinza)}
+  .esconder{display:none!important}
+</style>
+</head>
+<body>
+
+<header class="topo">
+  <div class="topo-inner">
+    <p class="marca">ArestAgência</p>
+    <h1 id="titulo">Os vídeos do baile</h1>
+    <p id="subtitulo">Encontre o seu casal pela capa, assista à prévia e receba o vídeo completo no seu e-mail.</p>
+    <ol class="passos" id="passos">
+      <li><b>1</b>Ache sua capa</li>
+      <li><b>2</b>Assista à prévia</li>
+      <li><b>3</b>Pague com Pix ou cartão</li>
+      <li><b>4</b>Receba por e-mail</li>
+    </ol>
+  </div>
+</header>
+
+<main class="conteudo">
+  <section id="galeria">
+    <div class="barra"><h2>Escolha o seu vídeo</h2><span id="contador"></span></div>
+    <div class="grade" id="grade" aria-live="polite"></div>
+  </section>
+  <section id="estado" class="estado esconder" aria-live="polite"></section>
+</main>
+
+<footer class="rodape">
+  <div class="rodape-inner">
+    <p>Produção e captação: ArestAgência · <a href="https://www.arestagencia.com.br" target="_blank" rel="noopener">arestagencia.com.br</a></p>
+    <p>Não quer que o seu vídeo apareça nesta galeria? Fale com a gente pelo <a href="https://wa.me/5561991283546" target="_blank" rel="noopener">WhatsApp (61) 99128-3546</a> e retiramos.</p>
+  </div>
+</footer>
+
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="m-titulo">
+  <div class="painel">
+    <div class="video-box"><iframe id="m-video" title="Prévia do vídeo" allow="autoplay; fullscreen" allowfullscreen></iframe></div>
+    <div class="lado">
+      <button class="fechar" id="m-fechar" aria-label="Fechar">×</button>
+      <p class="codigo" id="m-codigo"></p>
+      <h3 id="m-titulo">É o seu casal?</h3>
+      <p class="preco"><span id="m-preco"></span> <small>por vídeo</small></p>
+      <ul class="inclui">
+        <li>Vídeo completo em alta qualidade</li>
+        <li>Sem marca d'água</li>
+        <li>Entrega automática no seu e-mail</li>
+      </ul>
+      <form id="m-form" novalidate>
+        <label for="f-nome">Seu nome</label>
+        <input id="f-nome" name="nome" autocomplete="name" required maxlength="120">
+        <label for="f-email">Seu e-mail</label>
+        <input id="f-email" name="email" type="email" inputmode="email" autocomplete="email" required maxlength="200">
+        <p class="ajuda">É para este e-mail que vamos enviar o vídeo. Confira se está certinho.</p>
+        <p class="erro" id="m-erro" role="alert"></p>
+        <button class="btn btn-ouro btn-bloco" id="m-comprar" type="submit">Comprar meu vídeo</button>
+        <p class="seguro">Pagamento seguro pelo Mercado Pago · Pix, débito ou crédito</p>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+// ====== CONFIGURAÇÃO ======
+const CONFIG = {
+  supabaseUrl: "https://jlogxdjttufiiikiezfe.supabase.co",
+  chavePublica: "sb_publishable_ilWt8PPFiHuOBCmiCcsZ3A_CTmqyjmR",
+  eventoPadrao: "da-lhe-samba",    // usado quando o link não tem ?evento=
+  whatsapp: "https://wa.me/5561991283546",
+};
+// ==========================
+
+const $ = (s) => document.querySelector(s);
+const params = new URLSearchParams(location.search);
+const api = (p) => `${CONFIG.supabaseUrl}${p}`;
+const reais = (c) => (c / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+const capaUrl = (id, w = 800) => `https://lh3.googleusercontent.com/d/${encodeURIComponent(id)}=w${w}`;
+const capaFallback = (id, w = 800) => `https://drive.google.com/thumbnail?id=${encodeURIComponent(id)}&sz=w${w}`;
+const previaUrl = (id) => `https://drive.google.com/file/d/${encodeURIComponent(id)}/preview`;
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+
+let evento = null;
+let videoAtual = null;
+
+async function rest(caminho) {
+  const r = await fetch(api(`/rest/v1/${caminho}`), {
+    headers: { apikey: CONFIG.chavePublica },
+  });
+  if (!r.ok) throw new Error(`Erro ${r.status}`);
+  return r.json();
+}
+
+function mostrarEstado(html) {
+  $("#galeria").classList.add("esconder");
+  $("#passos").classList.add("esconder");
+  const el = $("#estado");
+  el.innerHTML = html;
+  el.classList.remove("esconder");
+}
+
+function imgCapa(id, w) {
+  if (!id) return `<div class="sem-capa">Capa em breve</div>`;
+  return `<img src="${capaUrl(id, w)}" alt="" loading="lazy" onerror="if(!this.dataset.f){this.dataset.f=1;this.src='${capaFallback(id, w)}'}">`;
+}
+
+// ---------- Galeria ----------
+async function carregarGaleria() {
+  const slug = params.get("evento") || CONFIG.eventoPadrao;
+  const grade = $("#grade");
+  grade.innerHTML = `<div class="vazio"><div class="spinner"></div>Carregando vídeos...</div>`;
+  try {
+    const eventos = await rest(`eventos?slug=eq.${encodeURIComponent(slug)}&select=id,nome,preco_centavos`);
+    evento = eventos[0];
+    if (!evento) {
+      grade.innerHTML = `<div class="vazio">Esta galeria não está disponível no momento.</div>`;
+      return;
+    }
+    document.title = `${evento.nome} | Vídeos ArestAgência`;
+    $("#titulo").textContent = `Os vídeos do ${evento.nome}`;
+    const videos = await rest(`videos?evento_id=eq.${evento.id}&select=id,codigo,capa_drive_id,previa_drive_id&order=ordem.asc,codigo.asc`);
+    $("#contador").textContent = videos.length ? `${videos.length} vídeos` : "";
+    if (!videos.length) {
+      grade.innerHTML = `<div class="vazio">Os vídeos estão sendo editados e aparecem aqui em breve.</div>`;
+      return;
+    }
+    grade.innerHTML = "";
+    for (const v of videos) {
+      const b = document.createElement("button");
+      b.className = "card";
+      b.type = "button";
+      b.setAttribute("aria-label", `Ver prévia do vídeo ${v.codigo}`);
+      b.innerHTML = `${imgCapa(v.capa_drive_id, 600)}<span class="selo">Nº ${esc(v.codigo)}</span><span class="play" aria-hidden="true"></span>`;
+      b.addEventListener("click", () => abrirModal(v));
+      grade.appendChild(b);
+    }
+  } catch (e) {
+    console.error(e);
+    grade.innerHTML = `<div class="vazio">Não conseguimos carregar a galeria. Atualize a página em instantes.</div>`;
+  }
+}
+
+function abrirModal(v) {
+  videoAtual = v;
+  $("#m-codigo").textContent = `Vídeo nº ${v.codigo}`;
+  $("#m-preco").textContent = reais(evento.preco_centavos);
+  $("#m-erro").textContent = "";
+  $("#m-video").src = v.previa_drive_id ? previaUrl(v.previa_drive_id) : "about:blank";
+  $("#modal").classList.add("aberto");
+  document.body.style.overflow = "hidden";
+  try {
+    const salvo = JSON.parse(localStorage.getItem("comprador") || "{}");
+    if (salvo.nome && !$("#f-nome").value) $("#f-nome").value = salvo.nome;
+    if (salvo.email && !$("#f-email").value) $("#f-email").value = salvo.email;
+  } catch {}
+}
+
+function fecharModal() {
+  $("#modal").classList.remove("aberto");
+  $("#m-video").src = "about:blank";
+  document.body.style.overflow = "";
+  videoAtual = null;
+}
+
+$("#m-fechar").addEventListener("click", fecharModal);
+$("#modal").addEventListener("click", (e) => { if (e.target.id === "modal") fecharModal(); });
+document.addEventListener("keydown", (e) => { if (e.key === "Escape") fecharModal(); });
+
+$("#m-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const nome = $("#f-nome").value.trim();
+  const email = $("#f-email").value.trim();
+  const erro = $("#m-erro");
+  erro.textContent = "";
+  if (nome.length < 2) { erro.textContent = "Informe seu nome."; return; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) { erro.textContent = "Confira o seu e-mail."; return; }
+
+  const btn = $("#m-comprar");
+  btn.disabled = true; btn.textContent = "Abrindo pagamento...";
+  try {
+    try { localStorage.setItem("comprador", JSON.stringify({ nome, email })); } catch {}
+    const r = await fetch(api("/functions/v1/criar-checkout"), {
+      method: "POST",
+      headers: { "Content-Type": "application/json", apikey: CONFIG.chavePublica },
+      body: JSON.stringify({ video_id: videoAtual.id, nome, email }),
+    });
+    const dados = await r.json().catch(() => ({}));
+    if (!r.ok || !dados.url) throw new Error(dados.erro || "Não foi possível abrir o pagamento.");
+    location.href = dados.url;
+  } catch (err) {
+    erro.textContent = err.message;
+    btn.disabled = false; btn.textContent = "Comprar meu vídeo";
+  }
+});
+
+// ---------- Confirmação do pedido ----------
+async function acompanharPedido(pedidoId) {
+  const pagamentoId = params.get("payment_id") || params.get("collection_id") || "";
+  mostrarEstado(`<div class="spinner"></div><h2>Confirmando seu pagamento</h2><p>Isso costuma levar poucos segundos.</p>`);
+  const inicio = Date.now();
+  let tentativa = 0;
+
+  const verificar = async () => {
+    tentativa++;
+    try {
+      const q = new URLSearchParams({ pedido: pedidoId });
+      if (pagamentoId && /^\d+$/.test(pagamentoId)) q.set("payment_id", pagamentoId);
+      const r = await fetch(api(`/functions/v1/status-pedido?${q}`), { headers: { apikey: CONFIG.chavePublica } });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.erro || "Pedido não encontrado");
+
+      if (d.status === "pago") {
+        const validade = d.expira_em ? new Date(d.expira_em).toLocaleDateString("pt-BR") : "";
+        mostrarEstado(`
+          ${d.capa_drive_id ? `<img class="miniatura" src="${capaUrl(d.capa_drive_id, 400)}" alt="">` : ""}
+          <h2>Pagamento confirmado!</h2>
+          <p>Seu vídeo nº ${esc(d.codigo)} está liberado. ${d.email_enviado ? `Também enviamos o link para <b>${esc(d.email)}</b>.` : `Em instantes você também recebe o link em <b>${esc(d.email)}</b>.`}</p>
+          <p><a class="btn btn-ouro" href="${esc(d.link)}">Baixar meu vídeo</a></p>
+          <p class="ajuda">O link fica disponível${validade ? ` até ${validade}` : ""}. Se o e-mail não chegar, olhe a caixa de spam ou promoções.</p>
+          <p><a class="btn btn-linha" href="?evento=${encodeURIComponent(params.get("evento") || CONFIG.eventoPadrao)}">Ver outros vídeos</a></p>`);
+        return;
+      }
+      if (d.status === "recusado") {
+        mostrarEstado(`<h2>Pagamento não aprovado</h2><p>Nenhum valor foi cobrado. Você pode tentar de novo com outro meio de pagamento.</p>
+          <p><a class="btn btn-ouro" href="./">Voltar para a galeria</a></p>`);
+        return;
+      }
+      if (d.status === "estornado") {
+        mostrarEstado(`<h2>Pedido estornado</h2><p>Este pagamento foi devolvido. Dúvidas? <a href="${CONFIG.whatsapp}" target="_blank" rel="noopener">Fale com a gente</a>.</p>`);
+        return;
+      }
+      // pendente
+      if (Date.now() - inicio > 10 * 60 * 1000) {
+        mostrarEstado(`<h2>Ainda aguardando o pagamento</h2><p>Se você já pagou, fique tranquilo: assim que o Mercado Pago confirmar, o vídeo chega no seu e-mail. Se pagou com Pix, isso pode levar alguns minutos.</p>
+          <p><a class="btn btn-linha" href="${CONFIG.whatsapp}" target="_blank" rel="noopener">Falar no WhatsApp</a></p>`);
+        return;
+      }
+      if (tentativa === 4) {
+        mostrarEstado(`<div class="spinner"></div><h2>Aguardando a confirmação</h2><p>Se você pagou com Pix, conclua o pagamento no app do seu banco. Esta página atualiza sozinha.</p>`);
+      }
+    } catch (e) {
+      console.error(e);
+      if (tentativa > 3) {
+        mostrarEstado(`<h2>Não encontramos este pedido</h2><p>Se você fez um pagamento, <a href="${CONFIG.whatsapp}" target="_blank" rel="noopener">fale com a gente no WhatsApp</a> que resolvemos.</p>`);
+        return;
+      }
+    }
+    setTimeout(verificar, tentativa < 10 ? 3000 : 6000);
+  };
+  verificar();
+}
+
+// ---------- Roteamento simples ----------
+const pedido = params.get("pedido");
+const baixar = params.get("baixar");
+if (baixar && /^[0-9a-f]{64}$/.test(baixar)) {
+  mostrarEstado(`<div class="spinner"></div><h2>Abrindo seu vídeo</h2><p>Você será levado ao arquivo em alta qualidade. Use o botão de download para salvar.</p>`);
+  location.replace(api(`/functions/v1/download?t=${baixar}`));
+} else if (params.get("link") === "invalido") {
+  mostrarEstado(`<h2>Este link não está mais ativo</h2><p>Ele pode ter expirado. Fale com a gente no WhatsApp que enviamos um novo.</p>
+    <p><a class="btn btn-ouro" href="${CONFIG.whatsapp}" target="_blank" rel="noopener">Falar no WhatsApp</a></p>`);
+} else if (pedido && /^[0-9a-f-]{36}$/i.test(pedido)) {
+  acompanharPedido(pedido);
+} else {
+  carregarGaleria();
+}
+</script>
+</body>
+</html>
