@@ -142,7 +142,9 @@
   .lb-info h3 em{font-family:var(--serif);font-weight:400;font-style:italic;color:var(--gold)}
   .preco{display:flex;align-items:baseline;gap:8px;margin:14px 0 4px}
   .preco b{font-weight:600;font-size:34px;line-height:1;font-variant-numeric:tabular-nums}
-  .preco span{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+  .preco{flex-wrap:wrap;margin:14px 0 20px}
+  .preco span{font-size:15px;color:var(--ink-2)}
+  .preco .de s{color:var(--muted);text-decoration-thickness:1.5px}
   .inclui{list-style:none;margin:14px 0 18px;font-size:14px;color:var(--ink-2)}
   .inclui li{display:flex;align-items:center;gap:10px;padding:3px 0}
   .inclui li::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--gold);flex:none}
@@ -233,13 +235,8 @@
     <div class="lb-media"><iframe id="lbV" title="Prévia do vídeo" allow="autoplay; fullscreen" allowfullscreen></iframe></div>
     <div class="lb-info">
       <div class="k" id="lbK"></div>
-      <h3 id="lbT">É o <em>seu casal?</em></h3>
-      <div class="preco"><b id="lbPreco"></b><span>por vídeo</span></div>
-      <ul class="inclui">
-        <li>Vídeo completo em alta qualidade</li>
-        <li>Sem marca d'água</li>
-        <li>Entrega automática no seu e-mail</li>
-      </ul>
+      <h3 id="lbT">Acesse seu <em>vídeo completo</em>:</h3>
+      <div class="preco"><span class="de" id="lbDe" hidden>de <s id="lbPrecoDe"></s> por</span><b id="lbPreco"></b></div>
       <form class="form" id="fCompra" novalidate>
         <label for="fNome">Seu nome</label>
         <input id="fNome" autocomplete="name" required maxlength="120">
@@ -340,7 +337,7 @@ async function carregarGaleria() {
   const lista = $("#lista");
   lista.innerHTML = `<div class="empty"><div class="spinner"></div>Carregando vídeos...</div>`;
   try {
-    evento = (await rest(`eventos?slug=eq.${encodeURIComponent(slug)}&select=id,nome,data,preco_centavos`))[0];
+    evento = (await rest(`eventos?slug=eq.${encodeURIComponent(slug)}&select=id,nome,data,preco_centavos,preco_cheio_centavos`))[0];
     if (!evento) {
       $("#titulo").textContent = "Galeria indisponível";
       lista.innerHTML = `<div class="empty">Esta galeria não está disponível no momento.</div>`;
@@ -378,7 +375,7 @@ function desenhar() {
     b.className = "card";
     b.setAttribute("aria-label", `Ver prévia do vídeo ${v.codigo}`);
     b.innerHTML = `<div class="thumb"><img src="${capaUrl(v.id, 500)}" alt="" loading="lazy" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'sem-capa',textContent:'Capa em breve'}))"><span class="badge">Nº ${esc(v.codigo)}</span><span class="play"><i></i></span></div>
-      <div class="meta"><b>Vídeo nº ${esc(v.codigo)}</b><span><i class="dot"></i>${reais(evento.preco_centavos)}</span></div>`;
+      <div class="meta"><b>Vídeo nº ${esc(v.codigo)}</b></div>`;
     b.addEventListener("click", () => abrir(i));
     grade.appendChild(b);
   });
@@ -391,6 +388,9 @@ function abrir(i) {
   const v = visiveis[i];
   $("#lbK").textContent = `Vídeo nº ${v.codigo}`;
   $("#lbPreco").textContent = reais(evento.preco_centavos);
+  const cheio = evento.preco_cheio_centavos;
+  $("#lbDe").hidden = !(cheio > evento.preco_centavos);
+  if (cheio > evento.preco_centavos) $("#lbPrecoDe").textContent = reais(cheio);
   $("#lbV").src = v.previa_drive_id ? previaUrl(v.previa_drive_id) : "about:blank";
   $("#fErro").textContent = "";
   $("#lbP").hidden = i <= 0;
